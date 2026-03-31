@@ -93,6 +93,9 @@ class PurchaseOrderController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $purchaseOrder) {
+            $oldStatus = $purchaseOrder->status;
+            $newStatus = $request->status;
+
             $totalAmount = collect($request->details)->sum(
                 fn($d) => $d['quantity'] * $d['unit_price']
             );
@@ -101,7 +104,7 @@ class PurchaseOrderController extends Controller
                 'supplier_id'  => $request->supplier_id,
                 'order_date'   => $request->order_date,
                 'total_amount' => $totalAmount,
-                'status'       => $request->status,
+                'status'       => $newStatus,
                 'notes'        => $request->notes,
             ]);
 
@@ -115,6 +118,20 @@ class PurchaseOrderController extends Controller
                     'unit_price'        => $detail['unit_price'],
                     'subtotal'          => $detail['quantity'] * $detail['unit_price'],
                 ]);
+            }
+
+            if ($oldStatus !== 'received' && $newStatus === 'received') {
+                foreach ($request->details as $detail) {
+                    Product::where('id', $detail['product_id'])
+                        ->increment('stock', $detail['quantity']);
+                }
+            }
+
+            if ($oldStatus === 'received' && $newStatus === 'cancelled') {
+                foreach ($request->details as $detail) {
+                    Product::where('id', $detail['product_id'])
+                        ->decrement('stock', $detail['quantity']);
+                }
             }
         });
 

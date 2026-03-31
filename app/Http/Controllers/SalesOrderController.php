@@ -37,6 +37,19 @@ class SalesOrderController extends Controller
             'details.*.unit_price'   => 'required|numeric|min:0',
         ]);
 
+        foreach ($request->details as $detail) {
+            $product = Product::findOrFail($detail['product_id']);
+            $reserved = SalesOrderDetail::whereHas('salesOrder', fn($q) => $q->where('status', 'pending'))
+                ->where('product_id', $product->id)
+                ->sum('quantity');
+            $freeStock = $product->stock - $reserved;
+
+            if ($detail['quantity'] > $freeStock) {
+                return redirect()->back()->withInput()
+                    ->with('error', "Stok {$product->name} tidak cukup. Stok bebas: {$freeStock} {$product->unit}.");
+            }
+        }
+
         DB::transaction(function () use ($request) {
             $totalAmount = collect($request->details)->sum(
                 fn($d) => $d['quantity'] * $d['unit_price']
@@ -59,6 +72,13 @@ class SalesOrderController extends Controller
                     'unit_price'     => $detail['unit_price'],
                     'subtotal'       => $detail['quantity'] * $detail['unit_price'],
                 ]);
+            }
+
+            if ($request->status === 'shipped') {
+                foreach ($request->details as $detail) {
+                    Product::where('id', $detail['product_id'])
+                        ->decrement('stock', $detail['quantity']);
+                }
             }
         });
 
@@ -93,6 +113,9 @@ class SalesOrderController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $salesOrder) {
+            $oldStatus = $salesOrder->status;
+            $newStatus = $request->status;
+
             $totalAmount = collect($request->details)->sum(
                 fn($d) => $d['quantity'] * $d['unit_price']
             );
@@ -101,7 +124,7 @@ class SalesOrderController extends Controller
                 'customer_id'  => $request->customer_id,
                 'order_date'   => $request->order_date,
                 'total_amount' => $totalAmount,
-                'status'       => $request->status,
+                'status'       => $newStatus,
                 'notes'        => $request->notes,
             ]);
 
@@ -115,6 +138,20 @@ class SalesOrderController extends Controller
                     'unit_price'     => $detail['unit_price'],
                     'subtotal'       => $detail['quantity'] * $detail['unit_price'],
                 ]);
+            }
+
+            if ($oldStatus !== 'shipped' && $newStatus === 'shipped') {
+                foreach ($request->details as $detail) {
+                    Product::where('id', $detail['product_id'])
+                        ->decrement('stock', $detail['quantity']);
+                }
+            }
+
+            if ($oldStatus === 'shipped' && $newStatus === 'cancelled') {
+                foreach ($request->details as $detail) {
+                    Product::where('id', $detail['product_id'])
+                        ->increment('stock', $detail['quantity']);
+                }
             }
         });
 
