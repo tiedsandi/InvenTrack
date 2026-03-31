@@ -60,6 +60,14 @@ class PurchaseOrderController extends Controller
                     'subtotal'          => $detail['quantity'] * $detail['unit_price'],
                 ]);
             }
+
+            // Jika langsung dibuat dengan status received, tambah stok sekarang
+            if ($request->status === 'received') {
+                foreach ($request->details as $detail) {
+                    Product::where('id', $detail['product_id'])
+                        ->increment('stock', $detail['quantity']);
+                }
+            }
         });
 
         return redirect()->route('purchase-orders.index')->with('success', 'Purchase Order berhasil dibuat.');
