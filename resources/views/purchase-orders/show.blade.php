@@ -56,7 +56,7 @@
                 <div class="card-header bg-white py-3">
                     <h6 class="mb-0 fw-semibold">Detail Produk</h6>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-0 table-responsive">
                     <table class="table mb-0">
                         <thead class="table-light">
                             <tr>

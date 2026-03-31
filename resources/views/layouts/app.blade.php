@@ -12,6 +12,7 @@
             background-color: #f0f2f5;
         }
 
+        /* ── Sidebar ── */
         .sidebar {
             width: 250px;
             min-height: 100vh;
@@ -19,8 +20,10 @@
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 100;
+            z-index: 1045;
             padding-top: 0;
+            transition: transform 0.25s ease;
+            overflow-y: auto;
         }
 
         .sidebar-brand {
@@ -62,8 +65,10 @@
             padding: 16px 20px 6px;
         }
 
+        /* ── Main Content ── */
         .main-content {
             margin-left: 250px;
+            transition: margin-left 0.25s ease;
         }
 
         .topbar {
@@ -78,12 +83,47 @@
         .page-content {
             padding: 24px;
         }
+
+        /* ── Overlay (mobile) ── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1044;
+        }
+
+        /* ── Mobile breakpoint ── */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .page-content {
+                padding: 16px;
+            }
+        }
     </style>
 </head>
 
 <body>
+    {{-- Sidebar Overlay (mobile) --}}
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
     {{-- Sidebar --}}
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <i class="bi bi-building me-2"></i> ASIETEX
             <small>Sinar Indopratama</small>
@@ -128,7 +168,12 @@
     <div class="main-content">
         {{-- Topbar --}}
         <div class="topbar d-flex justify-content-between align-items-center">
-            <h6 class="mb-0 fw-semibold text-muted">@yield('page-title', 'Dashboard')</h6>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-sm btn-outline-secondary d-lg-none" onclick="toggleSidebar()">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+                <h6 class="mb-0 fw-semibold text-muted">@yield('page-title', 'Dashboard')</h6>
+            </div>
             <div class="dropdown">
                 <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
                     data-bs-toggle="dropdown">
@@ -168,6 +213,12 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+    </script>
     @yield('scripts')
 </body>
 
