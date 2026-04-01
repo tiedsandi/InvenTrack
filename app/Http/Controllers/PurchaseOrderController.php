@@ -107,6 +107,8 @@ class PurchaseOrderController extends Controller
                 fn($d) => $d['quantity'] * $d['unit_price']
             );
 
+            $oldDetails = $purchaseOrder->details()->get();
+
             $purchaseOrder->update([
                 'supplier_id'  => $request->supplier_id,
                 'order_date'   => $request->order_date,
@@ -135,9 +137,9 @@ class PurchaseOrderController extends Controller
             }
 
             if ($oldStatus === 'received' && $newStatus === 'cancelled') {
-                foreach ($request->details as $detail) {
-                    Product::where('id', $detail['product_id'])
-                        ->decrement('stock', $detail['quantity']);
+                foreach ($oldDetails as $detail) {
+                    Product::where('id', $detail->product_id)
+                        ->decrement('stock', $detail->quantity);
                 }
             }
         });
