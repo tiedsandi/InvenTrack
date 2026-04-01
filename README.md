@@ -9,7 +9,7 @@ Aplikasi manajemen data berbasis **Laravel 12** untuk PT. Asietex Sinar Indoprat
 - **Framework:** Laravel 12
 - **PHP:** 8.2
 - **Database:** PostgreSQL
-- **Frontend:** Blade + Bootstrap 5
+- **Frontend:** Blade + Tailwind CSS
 
 ---
 
