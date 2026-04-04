@@ -1,6 +1,6 @@
-# Asietex App
+# InvenTrack
 
-Aplikasi manajemen data berbasis **Laravel 12** untuk PT. Asietex Sinar Indopratama. Aplikasi ini mencakup fitur CRUD dengan menerapkan prinsip **Relational Database Management System (RDBMS)**, autentikasi user, master data, dan transaksi.
+Aplikasi manajemen inventory & transaksi berbasis **Laravel 12**. Aplikasi ini mencakup fitur CRUD dengan menerapkan prinsip **Relational Database Management System (RDBMS)**, autentikasi user, master data, dan transaksi.
 
 ---
 
@@ -68,14 +68,15 @@ sales_order_details    → detail SO (relasi ke sales_orders & products)
 ### 1. Clone repository
 
 ```bash
-git clone https://github.com/tiedsandi/asietex-app
-cd asietex-app
+git clone https://github.com/tiedsandi/inventrack
+cd inventrack
 ```
 
 ### 2. Install dependencies
 
 ```bash
 composer install
+npm install
 ```
 
 ### 3. Konfigurasi environment
@@ -91,7 +92,7 @@ Edit file `.env` sesuaikan konfigurasi database PostgreSQL:
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
-DB_DATABASE=asietex_db
+DB_DATABASE=inventrack_db
 DB_USERNAME=postgres
 DB_PASSWORD=your_password
 ```
@@ -104,8 +105,14 @@ php artisan migrate --seed
 
 ### 5. Jalankan server
 
+Jalankan backend dan frontend secara bersamaan di dua terminal terpisah:
+
 ```bash
+# Terminal 1 — Laravel
 php artisan serve
+
+# Terminal 2 — Vite (React HMR)
+npm run dev
 ```
 
 Akses aplikasi di `http://localhost:8000`
@@ -114,19 +121,21 @@ Akses aplikasi di `http://localhost:8000`
 
 ### 6. Login default
 
-| Email             | Password |
-| ----------------- | -------- |
-| admin@asietex.com | admin123 |
+| Email                | Password |
+| -------------------- | -------- |
+| admin@inventrack.com | admin123 |
 
 ---
 
 ## Cara Menjalankan dengan Docker
 
+Project ini menggunakan Docker multi-service: **PHP-FPM**, **Nginx**, **PostgreSQL**, dan **Node.js** (Vite dev server).
+
 ### 1. Clone repository
 
 ```bash
-git clone https://github.com/tiedsandi/asietex-app
-cd asietex-app
+git clone https://github.com/tiedsandi/inventrack
+cd inventrack
 ```
 
 ### 2. Setup environment
@@ -141,7 +150,7 @@ Edit file `.env` sesuaikan dengan docker-compose:
 DB_CONNECTION=pgsql
 DB_HOST=db
 DB_PORT=5432
-DB_DATABASE=asietex_db
+DB_DATABASE=inventrack_db
 DB_USERNAME=postgres
 DB_PASSWORD=password123
 ```
@@ -151,6 +160,13 @@ DB_PASSWORD=password123
 ```bash
 docker compose up -d --build
 ```
+
+Ini akan menjalankan 4 service sekaligus:
+
+- `app` — PHP-FPM
+- `nginx` — Web server (port `8000`)
+- `db` — PostgreSQL
+- `node` — Vite dev server / React HMR (port `5173`)
 
 ### 4. Generate key & migration
 

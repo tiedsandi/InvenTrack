@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderDetail;
 use App\Models\Customer;
@@ -13,15 +14,15 @@ class SalesOrderController extends Controller
 {
     public function index()
     {
-        $salesOrders = SalesOrder::with('customer')->latest()->paginate(10);
-        return view('sales-orders.index', compact('salesOrders'));
+        $salesOrders = SalesOrder::with('customer')->latest()->get();
+        return Inertia::render('SalesOrders/Index', compact('salesOrders'));
     }
 
     public function create()
     {
         $customers = Customer::orderBy('name')->get();
         $products  = Product::orderBy('name')->get();
-        return view('sales-orders.create', compact('customers', 'products'));
+        return Inertia::render('SalesOrders/Create', compact('customers', 'products'));
     }
 
     public function store(Request $request)
@@ -88,7 +89,7 @@ class SalesOrderController extends Controller
     public function show(SalesOrder $salesOrder)
     {
         $salesOrder->load('customer', 'details.product');
-        return view('sales-orders.show', compact('salesOrder'));
+        return Inertia::render('SalesOrders/Show', compact('salesOrder'));
     }
 
     public function edit(SalesOrder $salesOrder)
@@ -96,7 +97,7 @@ class SalesOrderController extends Controller
         $customers = Customer::orderBy('name')->get();
         $products  = Product::orderBy('name')->get();
         $salesOrder->load('details.product');
-        return view('sales-orders.edit', compact('salesOrder', 'customers', 'products'));
+        return Inertia::render('SalesOrders/Edit', compact('salesOrder', 'customers', 'products'));
     }
 
     public function update(Request $request, SalesOrder $salesOrder)

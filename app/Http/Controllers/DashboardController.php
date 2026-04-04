@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
@@ -36,6 +37,6 @@ class DashboardController extends Controller
             'recentSO'         => SalesOrder::with('customer')->latest()->take(5)->get(),
         ];
 
-        return view('dashboard', $data);
+        return Inertia::render('Dashboard', $data);
     }
 }

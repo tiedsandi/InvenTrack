@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use App\Models\Product;
 use App\Models\Category;
 
@@ -10,14 +11,14 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with('category')->latest()->paginate(10);
-        return view('products.index', compact('products'));
+        $products = Product::with('category')->latest()->get();
+        return Inertia::render('Products/Index', compact('products'));
     }
 
     public function create()
     {
         $categories = Category::orderBy('name')->get();
-        return view('products.create', compact('categories'));
+        return Inertia::render('Products/Create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -40,7 +41,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::orderBy('name')->get();
-        return view('products.edit', compact('product', 'categories'));
+        return Inertia::render('Products/Edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)

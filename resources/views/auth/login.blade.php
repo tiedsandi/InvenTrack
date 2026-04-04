@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — Asietex App</title>
+    <title>Login — InvenTrack</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -13,8 +13,8 @@
 
         {{-- Header --}}
         <div class="bg-[#c0392b] px-6 py-6 text-center">
-            <h4 class="text-white font-bold text-xl">ASIETEX</h4>
-            <p class="text-white/80 text-sm mt-1">Sinar Indopratama — Aplikasi Manajemen</p>
+            <h4 class="text-white font-bold text-xl">InvenTrack</h4>
+            <p class="text-white/80 text-sm mt-1">Inventory & Order Management</p>
         </div>
 
         {{-- Body --}}

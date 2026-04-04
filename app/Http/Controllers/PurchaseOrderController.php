@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Supplier;
@@ -13,15 +14,15 @@ class PurchaseOrderController extends Controller
 {
     public function index()
     {
-        $purchaseOrders = PurchaseOrder::with('supplier')->latest()->paginate(10);
-        return view('purchase-orders.index', compact('purchaseOrders'));
+        $purchaseOrders = PurchaseOrder::with('supplier')->latest()->get();
+        return Inertia::render('PurchaseOrders/Index', compact('purchaseOrders'));
     }
 
     public function create()
     {
         $suppliers = Supplier::orderBy('name')->get();
         $products  = Product::orderBy('name')->get();
-        return view('purchase-orders.create', compact('suppliers', 'products'));
+        return Inertia::render('PurchaseOrders/Create', compact('suppliers', 'products'));
     }
 
     public function store(Request $request)
@@ -75,7 +76,7 @@ class PurchaseOrderController extends Controller
     public function show(PurchaseOrder $purchaseOrder)
     {
         $purchaseOrder->load('supplier', 'details.product');
-        return view('purchase-orders.show', compact('purchaseOrder'));
+        return Inertia::render('PurchaseOrders/Show', compact('purchaseOrder'));
     }
 
     public function edit(PurchaseOrder $purchaseOrder)
@@ -83,7 +84,7 @@ class PurchaseOrderController extends Controller
         $suppliers = Supplier::orderBy('name')->get();
         $products  = Product::orderBy('name')->get();
         $purchaseOrder->load('details.product');
-        return view('purchase-orders.edit', compact('purchaseOrder', 'suppliers', 'products'));
+        return Inertia::render('PurchaseOrders/Edit', compact('purchaseOrder', 'suppliers', 'products'));
     }
 
     public function update(Request $request, PurchaseOrder $purchaseOrder)

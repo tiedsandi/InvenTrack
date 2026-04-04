@@ -3,19 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use App\Models\Category;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::latest()->paginate(10);
-        return view('categories.index', compact('categories'));
+        $categories = Category::latest()->get();
+        return Inertia::render('Categories/Index', compact('categories'));
     }
 
     public function create()
     {
-        return view('categories.create');
+        return Inertia::render('Categories/Create');
     }
 
     public function store(Request $request)
@@ -32,7 +33,7 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        return view('categories.edit', compact('category'));
+        return Inertia::render('Categories/Edit', compact('category'));
     }
 
     public function update(Request $request, Category $category)

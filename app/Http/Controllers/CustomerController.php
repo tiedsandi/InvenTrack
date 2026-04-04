@@ -3,19 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use App\Models\Customer;
 
 class CustomerController extends Controller
 {
     public function index()
     {
-        $customers = Customer::latest()->paginate(10);
-        return view('customers.index', compact('customers'));
+        $customers = Customer::latest()->get();
+        return Inertia::render('Customers/Index', compact('customers'));
     }
 
     public function create()
     {
-        return view('customers.create');
+        return Inertia::render('Customers/Create');
     }
 
     public function store(Request $request)
@@ -34,7 +35,7 @@ class CustomerController extends Controller
 
     public function edit(Customer $customer)
     {
-        return view('customers.edit', compact('customer'));
+        return Inertia::render('Customers/Edit', compact('customer'));
     }
 
     public function update(Request $request, Customer $customer)

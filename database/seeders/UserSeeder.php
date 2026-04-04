@@ -11,10 +11,10 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'admin@asietex.com'],
+            ['email' => 'admin@inventrack.com'],
             [
-                'name'     => 'Admin Asietex',
-                'email'    => 'admin@asietex.com',
+                'name'     => 'Admin InvenTrack',
+                'email'    => 'admin@inventrack.com',
                 'password' => Hash::make('admin123'),
             ]
         );

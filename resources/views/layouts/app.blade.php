@@ -23,9 +23,9 @@
         <div class="bg-[#c0392b] px-5 py-[18px]">
             <div class="text-white font-bold text-base flex items-center gap-2">
                 <i data-lucide="building-2" class="w-4 h-4"></i>
-                ASIETEX
+                InvenTrack
             </div>
-            <div class="text-white/80 text-[11px] font-normal">Sinar Indopratama</div>
+            <div class="text-white/80 text-[11px] font-normal">Inventory Management</div>
         </div>
 
         {{-- Nav --}}
