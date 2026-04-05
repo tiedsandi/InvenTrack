@@ -12,10 +12,26 @@ use App\Models\Product;
 
 class PurchaseOrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $purchaseOrders = PurchaseOrder::with('supplier')->latest()->get();
-        return Inertia::render('PurchaseOrders/Index', compact('purchaseOrders'));
+        $purchaseOrders = PurchaseOrder::with('supplier')
+            ->when(
+                $request->q,
+                fn($q, $search) =>
+                $q->where('po_number', 'like', "%{$search}%")
+                    ->orWhereHas('supplier', fn($s) => $s->where('name', 'like', "%{$search}%"))
+            )
+            ->when($request->status, fn($q, $status) => $q->where('status', $status))
+            ->when($request->date_from, fn($q, $date) => $q->whereDate('order_date', '>=', $date))
+            ->when($request->date_to,   fn($q, $date) => $q->whereDate('order_date', '<=', $date))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('PurchaseOrders/Index', [
+            'purchaseOrders' => $purchaseOrders,
+            'filters'        => $request->only('q', 'status', 'date_from', 'date_to'),
+        ]);
     }
 
     public function create()

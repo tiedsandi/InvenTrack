@@ -9,10 +9,23 @@ use App\Models\Category;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category')->latest()->get();
-        return Inertia::render('Products/Index', compact('products'));
+        $products = Product::with('category')
+            ->when(
+                $request->q,
+                fn($q, $search) =>
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%")
+            )
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Products/Index', [
+            'products' => $products,
+            'filters'  => $request->only('q'),
+        ]);
     }
 
     public function create()

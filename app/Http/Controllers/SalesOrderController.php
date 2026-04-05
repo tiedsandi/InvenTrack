@@ -12,10 +12,26 @@ use App\Models\Product;
 
 class SalesOrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $salesOrders = SalesOrder::with('customer')->latest()->get();
-        return Inertia::render('SalesOrders/Index', compact('salesOrders'));
+        $salesOrders = SalesOrder::with('customer')
+            ->when(
+                $request->q,
+                fn($q, $search) =>
+                $q->where('so_number', 'like', "%{$search}%")
+                    ->orWhereHas('customer', fn($c) => $c->where('name', 'like', "%{$search}%"))
+            )
+            ->when($request->status, fn($q, $status) => $q->where('status', $status))
+            ->when($request->date_from, fn($q, $date) => $q->whereDate('order_date', '>=', $date))
+            ->when($request->date_to,   fn($q, $date) => $q->whereDate('order_date', '<=', $date))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('SalesOrders/Index', [
+            'salesOrders' => $salesOrders,
+            'filters'     => $request->only('q', 'status', 'date_from', 'date_to'),
+        ]);
     }
 
     public function create()

@@ -1,37 +1,38 @@
-import { useState, useMemo } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/components/layout/AppLayout';
 import Pagination from '@/components/ui/Pagination';
-import { usePagination } from '@/lib/usePagination';
+import { confirmDelete } from '@/lib/swal';
 import { Pencil, Trash2, Plus, Search } from 'lucide-react';
 
-export default function Index({ customers }) {
-    const [q, setQ] = useState('');
-    const filtered = useMemo(
-        () => customers.filter((c) => c.name.toLowerCase().includes(q.toLowerCase())),
-        [customers, q]
-    );
-    const { paginated, page, goTo, totalPages } = usePagination(filtered, 10);
+export default function Index({ customers, filters }) {
+    const [q, setQ] = useState(filters.q ?? '');
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            router.get('/customers', { q }, { preserveState: true, replace: true });
+        }, 400);
+        return () => clearTimeout(timer);
+    }, [q]);
 
     return (
         <AppLayout title="Master Data — Customer">
             <Head title="Customer" />
-
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100">
                     <h6 className="font-semibold text-slate-700">Daftar Customer</h6>
                     <div className="flex items-center gap-2">
                         <div className="relative">
                             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                            <input type="text" value={q} onChange={(e) => { setQ(e.target.value); goTo(1); }}
-                                placeholder="Cari..." className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/10 w-40" />
+                            <input type="text" value={q} onChange={(e) => setQ(e.target.value)}
+                                placeholder="Cari nama..."
+                                className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900/10 w-44" />
                         </div>
                         <Link href="/customers/create" className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition-colors">
                             <Plus className="w-4 h-4" /> Tambah
                         </Link>
                     </div>
                 </div>
-
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
@@ -45,25 +46,25 @@ export default function Index({ customers }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {paginated.length === 0 ? (
+                            {customers.data.length === 0 ? (
                                 <tr><td colSpan={6} className="px-5 py-8 text-center text-slate-400">Tidak ada data.</td></tr>
-                            ) : paginated.map((customer, i) => (
+                            ) : customers.data.map((customer, i) => (
                                 <tr key={customer.id} className="hover:bg-slate-50">
-                                    <td className="px-5 py-3 text-slate-500">{(page - 1) * 10 + i + 1}</td>
-                                    <td className="px-5 py-3 font-semibold text-slate-800">{customer.name}</td>
+                                    <td className="px-5 py-3 text-slate-500">{(customers.current_page - 1) * customers.per_page + i + 1}</td>
+                                    <td className="px-5 py-3 font-medium text-slate-800">{customer.name}</td>
                                     <td className="px-5 py-3 text-slate-600">{customer.phone ?? '-'}</td>
                                     <td className="px-5 py-3 text-slate-600">{customer.email ?? '-'}</td>
                                     <td className="px-5 py-3 text-slate-500 max-w-xs truncate">{customer.address ?? '-'}</td>
                                     <td className="px-5 py-3">
                                         <div className="flex items-center gap-1.5">
-                                            <Link href={`/customers/${customer.id}/edit`} className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">
+                                            <Link href={"/customers/"+customer.id+"/edit"} className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">
                                                 <Pencil className="w-3.5 h-3.5" />
                                             </Link>
-                                            <Link href={`/customers/${customer.id}`} method="delete" as="button"
+                                            <button
                                                 className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
-                                                onClick={(e) => { if (!confirm('Hapus customer ini?')) e.preventDefault(); }}>
+                                                onClick={async () => { if (await confirmDelete(customer.name)) router.delete('/customers/'+customer.id); }}>
                                                 <Trash2 className="w-3.5 h-3.5" />
-                                            </Link>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -71,11 +72,11 @@ export default function Index({ customers }) {
                         </tbody>
                     </table>
                 </div>
-
-                {totalPages > 1 && (
+                {customers.last_page > 1 && (
                     <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between">
-                        <span className="text-xs text-slate-500">{filtered.length} data</span>
-                        <Pagination currentPage={page} totalPages={totalPages} onPageChange={goTo} />
+                        <span className="text-xs text-slate-500">{customers.total} data</span>
+                        <Pagination currentPage={customers.current_page} totalPages={customers.last_page}
+                            onPageChange={(p) => router.get('/customers', { q, page: p }, { preserveState: true })} />
                     </div>
                 )}
             </div>

@@ -8,10 +8,18 @@ use App\Models\Customer;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $customers = Customer::latest()->get();
-        return Inertia::render('Customers/Index', compact('customers'));
+        $customers = Customer::query()
+            ->when($request->q, fn($q, $search) => $q->where('name', 'like', "%{$search}%"))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Customers/Index', [
+            'customers' => $customers,
+            'filters'   => $request->only('q'),
+        ]);
     }
 
     public function create()

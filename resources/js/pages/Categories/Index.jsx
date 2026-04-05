@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/components/layout/AppLayout';
 import Pagination from '@/components/ui/Pagination';
 import { usePagination } from '@/lib/usePagination';
+import { confirmDelete } from '@/lib/swal';
 import { Pencil, Trash2, Plus, Search } from 'lucide-react';
 
 export default function Index({ categories }) {
@@ -58,11 +59,11 @@ export default function Index({ categories }) {
                                             <Link href={`/categories/${category.id}/edit`} className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">
                                                 <Pencil className="w-3.5 h-3.5" />
                                             </Link>
-                                            <Link href={`/categories/${category.id}`} method="delete" as="button"
+                                            <button
                                                 className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
-                                                onClick={(e) => { if (!confirm('Hapus kategori ini?')) e.preventDefault(); }}>
+                                                onClick={async () => { if (await confirmDelete(category.name)) router.delete(`/categories/${category.id}`); }}>
                                                 <Trash2 className="w-3.5 h-3.5" />
-                                            </Link>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

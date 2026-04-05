@@ -8,10 +8,18 @@ use App\Models\Supplier;
 
 class SupplierController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $suppliers = Supplier::latest()->get();
-        return Inertia::render('Suppliers/Index', compact('suppliers'));
+        $suppliers = Supplier::query()
+            ->when($request->q, fn($q, $search) => $q->where('name', 'like', "%{$search}%"))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Suppliers/Index', [
+            'suppliers' => $suppliers,
+            'filters'   => $request->only('q'),
+        ]);
     }
 
     public function create()
