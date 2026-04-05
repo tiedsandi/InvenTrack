@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
-    Building2,
+    Boxes,
     LayoutDashboard,
     Tag,
     Truck,
@@ -41,24 +41,28 @@ export default function Sidebar({ isOpen, onClose }) {
 
     return (
         <aside
-            className={`fixed top-0 left-0 z-50 h-full w-64 bg-[#1a1a2e] flex flex-col
+            className={`fixed top-0 left-0 z-50 h-full w-64 bg-slate-900 flex flex-col
                 transition-transform duration-250
                 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
         >
             {/* Brand */}
-            <div className="bg-[#c0392b] px-5 py-[18px]">
-                <div className="text-white font-bold text-base flex items-center gap-2">
-                    <Building2 className="w-4 h-4" />
-                    InvenTrack
+            <div className="px-5 py-5 border-b border-slate-800">
+                <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 bg-indigo-500 rounded-lg flex items-center justify-center shrink-0">
+                        <Boxes className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                        <div className="text-white font-semibold text-[15px] leading-none">InvenTrack</div>
+                        <div className="text-slate-500 text-[10px] mt-0.5">Inventory Management</div>
+                    </div>
                 </div>
-                <div className="text-white/80 text-[11px] font-normal">Inventory Management</div>
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 overflow-y-auto mt-2 pb-6">
+            <nav className="flex-1 overflow-y-auto py-3">
                 {navigation.map(({ section, items }) => (
-                    <div key={section}>
-                        <div className="px-5 pt-4 pb-1.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                    <div key={section} className="mb-4">
+                        <div className="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                             {section}
                         </div>
                         {items.map(({ label, href, icon: Icon }) => {
@@ -68,13 +72,13 @@ export default function Sidebar({ isOpen, onClose }) {
                                     key={href}
                                     href={href}
                                     onClick={onClose}
-                                    className={`flex items-center gap-2.5 px-5 py-2.5 text-sm transition-colors
+                                    className={`flex items-center gap-2.5 mx-2 px-3 py-2 text-sm rounded-lg transition-colors
                                         ${active
-                                            ? 'text-white bg-white/10 border-l-[3px] border-[#c0392b]'
-                                            : 'text-white/70 hover:text-white hover:bg-white/10 hover:border-l-[3px] hover:border-[#c0392b]'
+                                            ? 'bg-slate-800 text-white'
+                                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                                         }`}
                                 >
-                                    <Icon className="w-4 h-4 shrink-0" />
+                                    <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-indigo-400' : ''}`} />
                                     {label}
                                 </Link>
                             );
