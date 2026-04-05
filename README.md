@@ -48,6 +48,76 @@ Aplikasi manajemen inventory & transaksi berbasis **Laravel 12**. Aplikasi ini m
 
 ---
 
+## 📱 Mobile API untuk Flutter
+
+Aplikasi ini sudah dilengkapi dengan **REST API** yang siap diintegrasikan dengan aplikasi mobile Flutter.
+
+### Dokumentasi API Lengkap
+
+Semua dokumentasi untuk membuat dan mengintegrasikan API tersedia di folder `doc/`:
+
+| Dokumen                                                                | Deskripsi                                                                    |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **[16-api-setup-laravel.md](doc/16-api-setup-laravel.md)** ⭐          | Setup Laravel Sanctum, CORS, Routes & Controllers API - **START HERE**       |
+| **[17-api-endpoints-detail.md](doc/17-api-endpoints-detail.md)**       | Dokumentasi lengkap semua API endpoints dengan request/response examples     |
+| **[18-flutter-integration.md](doc/18-flutter-integration.md)**         | Panduan integrasi API ke Flutter app (API Client, Provider, Models, Screens) |
+| **[19-api-testing-guide.md](doc/19-api-testing-guide.md)**             | Testing API dengan Postman & cURL, testing checklist                         |
+| **[20-deployment-guide.md](doc/20-deployment-guide.md)**               | Panduan deploy API ke production (VPS, Docker, CI/CD)                        |
+| **[21-api-documentation-index.md](doc/21-api-documentation-index.md)** | Index lengkap & workflow rekomendasi                                         |
+| **[21-troubleshooting-faq.md](doc/21-troubleshooting-faq.md)**         | Common issues, solutions, dan FAQ                                            |
+| **[22-quick-implementation.md](doc/22-quick-implementation.md)** ⚡    | Step-by-step ready-to-code implementation (40 minutes)                       |
+
+### Quick Start API (5 Minutes)
+
+```bash
+# 1. Install Sanctum
+composer require laravel/sanctum
+php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+php artisan migrate
+
+# 2. Update User Model (add HasApiTokens trait)
+# lihat doc/16-api-setup-laravel.md
+
+# 3. Create routes/api.php
+# Copy dari doc/22-quick-implementation.md Step 3
+
+# 4. Create API Controllers
+# Follow doc/22-quick-implementation.md Steps 5-8
+
+# 5. Test API
+php artisan serve
+curl -X POST http://localhost:8000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@inventrack.com","password":"admin123"}'
+```
+
+📖 **Untuk panduan lengkap step-by-step, lihat [22-quick-implementation.md](doc/22-quick-implementation.md)**
+
+### API Architecture
+
+```
+Flutter Mobile App
+        ↓
+    REST API (Laravel 12 + Sanctum)
+    ├─ Authentication (Login, Register, Logout)
+    ├─ Master Data (Categories, Products, Suppliers, Customers)
+    └─ Transactions (Purchase Orders, Sales Orders)
+        ↓
+    PostgreSQL Database
+```
+
+### Fitur API
+
+✅ Token-based authentication (Sanctum)  
+✅ CORS enabled untuk Flutter  
+✅ Full CRUD untuk semua resources  
+✅ Stock management dengan business logic  
+✅ Pagination & search support  
+✅ Error handling & validation  
+✅ Ready untuk production
+
+---
+
 ## Struktur Database
 
 ```
