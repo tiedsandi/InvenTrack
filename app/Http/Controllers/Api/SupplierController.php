@@ -3,57 +3,51 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreSupplierRequest;
+use App\Http\Requests\UpdateSupplierRequest;
+use App\Http\Resources\SupplierResource;
 use App\Models\Supplier;
-use Illuminate\Http\Request;
 
 class SupplierController extends Controller
 {
-  public function index(Request $request)
-  {
-    $suppliers = Supplier::when($request->q, fn($q, $s) => $q->where('name', 'like', "%$s%"))
-      ->latest()
-      ->paginate($request->integer('per_page', 15));
+    public function index()
+    {
+        $suppliers = Supplier::when(request('q'), fn($q, $s) => $q->where('name', 'like', "%$s%"))
+            ->latest()
+            ->paginate(request()->integer('per_page', 15));
 
-    return response()->json($suppliers);
-  }
+        return SupplierResource::collection($suppliers);
+    }
 
-  public function store(Request $request)
-  {
-    $data = $request->validate([
-      'name'    => 'required|string|max:255',
-      'phone'   => 'nullable|string|max:20',
-      'email'   => 'nullable|email|max:255',
-      'address' => 'nullable|string',
-    ]);
+    public function store(StoreSupplierRequest $request)
+    {
+        $supplier = Supplier::create($request->validated());
 
-    $supplier = Supplier::create($data);
+        return new SupplierResource($supplier);
+    }
 
-    return response()->json($supplier, 201);
-  }
+    public function show(Supplier $supplier)
+    {
+        return new SupplierResource($supplier);
+    }
 
-  public function show(Supplier $supplier)
-  {
-    return response()->json($supplier);
-  }
+    public function update(UpdateSupplierRequest $request, Supplier $supplier)
+    {
+        $supplier->update($request->validated());
 
-  public function update(Request $request, Supplier $supplier)
-  {
-    $data = $request->validate([
-      'name'    => 'required|string|max:255',
-      'phone'   => 'nullable|string|max:20',
-      'email'   => 'nullable|email|max:255',
-      'address' => 'nullable|string',
-    ]);
+        return new SupplierResource($supplier);
+    }
 
-    $supplier->update($data);
+    public function destroy(Supplier $supplier)
+    {
+        if ($supplier->purchaseOrders()->exists()) {
+            return response()->json([
+                'message' => 'Supplier tidak bisa dihapus karena masih ada Purchase Order terkait.',
+            ], 422);
+        }
 
-    return response()->json($supplier);
-  }
+        $supplier->delete();
 
-  public function destroy(Supplier $supplier)
-  {
-    $supplier->delete();
-
-    return response()->json(['message' => 'Supplier berhasil dihapus.']);
-  }
+        return response()->json(['message' => 'Supplier berhasil dihapus.']);
+    }
 }
