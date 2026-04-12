@@ -9,7 +9,9 @@ Aplikasi manajemen inventory & transaksi berbasis **Laravel 12**. Aplikasi ini m
 - **Framework:** Laravel 12
 - **PHP:** 8.2
 - **Database:** PostgreSQL
-- **Frontend:** Blade + Tailwind CSS
+- **Frontend:** Blade + Tailwind CSS + React (Inertia.js)
+- **API:** REST API dengan Laravel Sanctum (Bearer Token)
+- **API Docs:** Swagger UI (L5-Swagger)
 
 ---
 
@@ -19,6 +21,8 @@ Aplikasi manajemen inventory & transaksi berbasis **Laravel 12**. Aplikasi ini m
 - **Master Data:** Kategori, Produk, Supplier, Customer
 - **Transaksi:** Purchase Order (beli dari supplier), Sales Order (jual ke customer)
 - **Manajemen Stok Otomatis** — stok berubah saat status transaksi dikonfirmasi secara fisik
+- **REST API** — seluruh fitur tersedia via API untuk integrasi mobile/third-party
+- **Swagger UI** — dokumentasi API interaktif, bisa langsung test endpoint
 
 ---
 
@@ -168,13 +172,56 @@ Ini akan menjalankan 4 service sekaligus:
 - `db` — PostgreSQL
 - `node` — Vite dev server / React HMR (port `5173`)
 
-### 4. Generate key & migration
+### 4. Generate key, install dependencies & migration
 
 ```bash
+docker compose exec app composer install
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate --seed
 ```
 
 Akses aplikasi di `http://localhost:8000`
+
+---
+
+## REST API
+
+Semua endpoint API tersedia di prefix `/api`. Autentikasi menggunakan **Bearer Token** dari Sanctum.
+
+### Autentikasi
+
+```
+POST /api/login     → dapatkan token (public)
+POST /api/logout    → hapus token (butuh token)
+GET  /api/user      → data user login (butuh token)
+```
+
+### Endpoint tersedia
+
+| Resource       | Endpoint                                                                                        |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| Dashboard      | `GET /api/dashboard`                                                                            |
+| Kategori       | `GET/POST /api/categories` · `GET/PUT/DELETE /api/categories/{id}`                              |
+| Supplier       | `GET/POST /api/suppliers` · `GET/PUT/DELETE /api/suppliers/{id}`                                |
+| Customer       | `GET/POST /api/customers` · `GET/PUT/DELETE /api/customers/{id}`                                |
+| Produk         | `GET/POST /api/products` · `GET/PUT/DELETE /api/products/{id}` · `GET /api/products/{id}/stock` |
+| Purchase Order | `GET/POST /api/purchase-orders` · `GET/PUT/DELETE /api/purchase-orders/{id}`                    |
+| Sales Order    | `GET/POST /api/sales-orders` · `GET/PUT/DELETE /api/sales-orders/{id}`                          |
+
+### Cara pakai token
+
+```http
+Authorization: Bearer {token}
+```
+
+### Swagger UI (dokumentasi interaktif)
+
+Setelah Docker berjalan, generate docs:
+
+```bash
+docker compose exec app php artisan l5-swagger:generate
+```
+
+Akses di `http://localhost:8000/api/documentation`
 
 ---
