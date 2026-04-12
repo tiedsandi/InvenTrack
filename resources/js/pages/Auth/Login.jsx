@@ -1,11 +1,13 @@
 import { Head, useForm } from '@inertiajs/react';
-import { Boxes } from 'lucide-react';
+import { Boxes, BookOpen, X } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Login() {
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
     });
+    const [showBanner, setShowBanner] = useState(true);
 
     const submit = (e) => {
         e.preventDefault();
@@ -16,6 +18,30 @@ export default function Login() {
         <>
             <Head title="Login" />
             <div className="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+                {showBanner && (
+                    <div className="fixed bottom-5 right-5 max-w-xs bg-slate-900 text-white rounded-2xl shadow-lg px-4 py-3 flex items-start gap-3 z-50">
+                        <div className="shrink-0 mt-0.5">
+                            <BookOpen className="w-4 h-4 text-slate-300" />
+                        </div>
+                        <div className="flex-1 text-sm">
+                            <p className="font-semibold text-white">REST API tersedia</p>
+                            <p className="text-slate-400 text-xs mt-0.5">Dokumentasi interaktif untuk integrasi mobile & third-party.</p>
+                            <a
+                                href="/api/documentation"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block mt-2 text-xs font-medium text-slate-900 bg-white hover:bg-slate-100 px-3 py-1 rounded-lg transition-colors"
+                            >
+                                Lihat API Docs →
+                            </a>
+                        </div>
+                        <button onClick={() => setShowBanner(false)} className="shrink-0 text-slate-400 hover:text-white transition-colors mt-0.5">
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                )}
+
                 <div className="w-full max-w-sm">
                     {/* Brand */}
                     <div className="text-center mb-8">
@@ -40,7 +66,7 @@ export default function Login() {
                                     type="email"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
-                                    placeholder="email@example.com"
+                                    placeholder="admin@inventrack.com"
                                     autoFocus
                                     className={`w-full px-3 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400
                                         ${errors.email ? 'border-red-300 bg-red-50' : 'border-slate-200'}`}
@@ -53,7 +79,7 @@ export default function Login() {
                                     type="password"
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
-                                    placeholder="••••••••"
+                                    placeholder="admin123"
                                     className={`w-full px-3 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400
                                         ${errors.password ? 'border-red-300 bg-red-50' : 'border-slate-200'}`}
                                 />
