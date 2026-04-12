@@ -8,9 +8,24 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use OpenApi\Attributes as OA;
 
 class SalesOrderController extends Controller
 {
+  #[OA\Get(
+      path: '/api/sales-orders',
+      summary: 'Daftar sales order',
+      tags: ['Sales Orders'],
+      security: [['bearerAuth' => []]],
+      parameters: [
+          new OA\Parameter(name: 'q', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+          new OA\Parameter(name: 'status', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['pending', 'shipped', 'cancelled'])),
+          new OA\Parameter(name: 'date_from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+          new OA\Parameter(name: 'date_to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+          new OA\Parameter(name: 'per_page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 15)),
+      ],
+      responses: [new OA\Response(response: 200, description: 'List sales order')]
+  )]
   public function index(Request $request)
   {
     $orders = SalesOrder::with('customer')
@@ -29,6 +44,39 @@ class SalesOrderController extends Controller
     return response()->json($orders);
   }
 
+  #[OA\Post(
+      path: '/api/sales-orders',
+      summary: 'Buat sales order baru',
+      tags: ['Sales Orders'],
+      security: [['bearerAuth' => []]],
+      requestBody: new OA\RequestBody(
+          required: true,
+          content: new OA\JsonContent(
+              required: ['customer_id', 'order_date', 'status', 'details'],
+              properties: [
+                  new OA\Property(property: 'customer_id', type: 'integer', example: 1),
+                  new OA\Property(property: 'order_date', type: 'string', format: 'date', example: '2026-04-12'),
+                  new OA\Property(property: 'status', type: 'string', enum: ['pending', 'shipped', 'cancelled'], example: 'pending'),
+                  new OA\Property(property: 'notes', type: 'string', example: 'Catatan SO'),
+                  new OA\Property(
+                      property: 'details',
+                      type: 'array',
+                      items: new OA\Items(
+                          properties: [
+                              new OA\Property(property: 'product_id', type: 'integer', example: 1),
+                              new OA\Property(property: 'quantity', type: 'integer', example: 2),
+                              new OA\Property(property: 'unit_price', type: 'number', example: 150000),
+                          ]
+                      )
+                  ),
+              ]
+          )
+      ),
+      responses: [
+          new OA\Response(response: 201, description: 'Sales order berhasil dibuat'),
+          new OA\Response(response: 422, description: 'Validasi gagal atau stok tidak cukup'),
+      ]
+  )]
   public function store(Request $request)
   {
     $request->validate([
@@ -96,11 +144,60 @@ class SalesOrderController extends Controller
     return response()->json($so->load('customer', 'details.product'), 201);
   }
 
+  #[OA\Get(
+      path: '/api/sales-orders/{sales_order}',
+      summary: 'Detail sales order',
+      tags: ['Sales Orders'],
+      security: [['bearerAuth' => []]],
+      parameters: [
+          new OA\Parameter(name: 'sales_order', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+      ],
+      responses: [
+          new OA\Response(response: 200, description: 'Detail sales order'),
+          new OA\Response(response: 404, description: 'Tidak ditemukan'),
+      ]
+  )]
   public function show(SalesOrder $salesOrder)
   {
     return response()->json($salesOrder->load('customer', 'details.product'));
   }
 
+  #[OA\Put(
+      path: '/api/sales-orders/{sales_order}',
+      summary: 'Update sales order',
+      tags: ['Sales Orders'],
+      security: [['bearerAuth' => []]],
+      parameters: [
+          new OA\Parameter(name: 'sales_order', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+      ],
+      requestBody: new OA\RequestBody(
+          required: true,
+          content: new OA\JsonContent(
+              required: ['customer_id', 'order_date', 'status', 'details'],
+              properties: [
+                  new OA\Property(property: 'customer_id', type: 'integer', example: 1),
+                  new OA\Property(property: 'order_date', type: 'string', format: 'date', example: '2026-04-12'),
+                  new OA\Property(property: 'status', type: 'string', enum: ['pending', 'shipped', 'cancelled'], example: 'shipped'),
+                  new OA\Property(property: 'notes', type: 'string', example: 'Catatan SO'),
+                  new OA\Property(
+                      property: 'details',
+                      type: 'array',
+                      items: new OA\Items(
+                          properties: [
+                              new OA\Property(property: 'product_id', type: 'integer', example: 1),
+                              new OA\Property(property: 'quantity', type: 'integer', example: 2),
+                              new OA\Property(property: 'unit_price', type: 'number', example: 150000),
+                          ]
+                      )
+                  ),
+              ]
+          )
+      ),
+      responses: [
+          new OA\Response(response: 200, description: 'Sales order berhasil diupdate'),
+          new OA\Response(response: 422, description: 'Validasi gagal'),
+      ]
+  )]
   public function update(Request $request, SalesOrder $salesOrder)
   {
     $request->validate([
@@ -181,6 +278,19 @@ class SalesOrderController extends Controller
     return response()->json($so->load('customer', 'details.product'));
   }
 
+  #[OA\Delete(
+      path: '/api/sales-orders/{sales_order}',
+      summary: 'Hapus sales order',
+      tags: ['Sales Orders'],
+      security: [['bearerAuth' => []]],
+      parameters: [
+          new OA\Parameter(name: 'sales_order', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+      ],
+      responses: [
+          new OA\Response(response: 200, description: 'Sales order berhasil dihapus'),
+          new OA\Response(response: 404, description: 'Tidak ditemukan'),
+      ]
+  )]
   public function destroy(SalesOrder $salesOrder)
   {
     DB::transaction(function () use ($salesOrder) {

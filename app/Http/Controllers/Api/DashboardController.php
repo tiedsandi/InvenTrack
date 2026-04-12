@@ -9,9 +9,20 @@ use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\SalesOrder;
 use App\Models\Supplier;
+use OpenApi\Attributes as OA;
 
 class DashboardController extends Controller
 {
+    #[OA\Get(
+        path: '/api/dashboard',
+        summary: 'Statistik ringkasan dashboard',
+        tags: ['Dashboard'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Data dashboard'),
+            new OA\Response(response: 401, description: 'Unauthorized'),
+        ]
+    )]
     public function index()
     {
         return response()->json([
